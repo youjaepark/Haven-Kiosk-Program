@@ -1,7 +1,6 @@
 #모듈 import
 from tkinter import *
 import os
-import urllib.request
 import shutil
 from bs4 import BeautifulSoup
 import requests
@@ -42,13 +41,13 @@ def lunchmenuupdate():
         f.write(recent_lunchmenu_image.content)
 
 def schoolphotoupdate():
-    schoolphoto_url = requests.get("https://haven.or.kr/school-life/%ec%82%ac%ec%a7%84/")
+    schoolphoto_url = "https://haven.or.kr/school-life/%ec%82%ac%ec%a7%84/"
 
     # Parse the HTML content
-    schoolphoto_url_parse = BeautifulSoup(schoolphoto_url.text, "html.parser")
+    schoolphoto_url_parse = BeautifulSoup(requests.get(schoolphoto_url).content, "html.parser")
     recent_schoolphoto_loc = schoolphoto_url_parse.find("li", {"class": "kboard-list-item"})
     schoolphoto_url_recent= "https://haven.or.kr"+recent_schoolphoto_loc.find("a")["href"]
-
+    
     # Directory to save the images to
     save_dir = "imgsamples"
 
@@ -61,27 +60,28 @@ def schoolphotoupdate():
         os.makedirs(save_dir)
 
     # Download the webpage
-    schoolphoto_url_recent_html = urllib.request.urlopen(schoolphoto_url_recent)
-    html = schoolphoto_url_recent_html.read()
+    schoolphoto_url_recent_html = requests.get(schoolphoto_url_recent)
+    html = schoolphoto_url_recent_html.content
 
     # Parse the HTML
     schoolphoto_url_parse = BeautifulSoup(html, "html.parser")
-
     # Find all image tags
     images = schoolphoto_url_parse.find_all("img")
-
     # Download the images
     for phimage in images:
         # Get the image URL
         img_url = phimage["src"]
+        if "https://haven.or.kr" not in img_url:
+            img_url ="https://haven.or.kr"+ phimage["src"]
         # Open the image URL
-        with urllib.request.urlopen(img_url) as schoolphoto_url_recent:
+        with requests.get(img_url) as schoolphoto_url_recent:
             # Get the image file name
             file_name = os.path.basename(img_url)
             # Open a file to save the image to
             with open(os.path.join(save_dir, file_name), "wb") as f:
                 # Use shutil to copy the image from the URL to the file
-                shutil.copyfileobj(schoolphoto_url_recent, f)
+                f.write(schoolphoto_url_recent.content) 
+                #shutil.copyfileobj(schoolphoto_url_recent.raw, f)
 
 def noticeupdate():
     notice_url = requests.get("https://haven.or.kr/school-notice/%ea%b0%80%ec%a0%95%ed%86%b5%ec%8b%a0%eb%ac%b8/")
@@ -106,18 +106,18 @@ def noticeupdate():
     image2 = notice_url_parse.find_all("img")[2]
 
     # Extract the value of the "src" attribute from each image
-    image_url1 = "https://haven.or.kr"+image1["src"]
-    image_url2 = "https://haven.or.kr"+image2["src"]
+    image_url1 = image1["src"]
+    image_url2 = image2["src"]
 
     # Download the images
-    recent_lunchmenu_image1 = requests.get(image_url1)
-    recent_lunchmenu_image2 = requests.get(image_url2)
+    recent_notice_image1 = requests.get(image_url1)
+    recent_notice_image2 = requests.get(image_url2)
 
     # Save the images to local files
     with open("notice1.jpg", "wb") as f:
-        f.write(recent_lunchmenu_image1.content)
+        f.write(recent_notice_image1.content)
     with open("notice2.jpg", "wb") as f:
-        f.write(recent_lunchmenu_image2.content)   
+        f.write(recent_notice_image2.content)   
 
 lunchmenuupdate()
 schoolphotoupdate()
@@ -397,6 +397,7 @@ for file in jpg_files:
     img = img.resize((wd,ht))
     images.append(ImageTk.PhotoImage(img))
     img.close()
+
 label = tk.Label(frame6, image=images[0])
 label.pack()
 
