@@ -1,7 +1,6 @@
 #모듈 import
 from tkinter import *
 import os
-import shutil
 from bs4 import BeautifulSoup
 import requests
 from PIL import ImageTk, Image
@@ -14,82 +13,68 @@ from email.mime.text import MIMEText
 from datetime import datetime
 import tkinter.font as tf
 
-#사진 업데이트
+#급식메뉴 사진 업데이트
 def lunchmenuupdate():
     lunchmenu_url = requests.get("https://haven.or.kr/%ec%a0%90%ec%8b%ac%ec%8b%9d%eb%8b%a8%ed%91%9c/")
 
-    # Parse the HTML content
     lunchmenu_url_parse = BeautifulSoup(lunchmenu_url.text, "html.parser")
     recent_lunchmenu_loc = lunchmenu_url_parse.find_all("td", {"class": "kboard-list-title"})[1]
     lunchmenu_url_recent= "https://haven.or.kr"+recent_lunchmenu_loc.find("a")["href"]
 
-
-    # Navigate to the latest post
     lunchmenu_url = requests.get(lunchmenu_url_recent)
-    # Parse the HTML content of the latest post
     lunchmenu_url_parse = BeautifulSoup(lunchmenu_url.text, "html.parser")
 
-    # Find the image in the latest post
     lchimage = lunchmenu_url_parse.find_all("img")[1]
     image_url = lchimage["src"]
 
-    # Download the image
     recent_lunchmenu_image = requests.get(image_url)
-
-    # Save the image to a local file
+    
     with open("recentlunchmenu.jpg", "wb") as f:
         f.write(recent_lunchmenu_image.content)
 
+#학교생활 사진 업데이트
 def schoolphotoupdate():
     schoolphoto_url = "https://haven.or.kr/school-life/%ec%82%ac%ec%a7%84/"
 
-    # Parse the HTML content
     schoolphoto_url_parse = BeautifulSoup(requests.get(schoolphoto_url).content, "html.parser")
     recent_schoolphoto_loc = schoolphoto_url_parse.find("li", {"class": "kboard-list-item"})
     schoolphoto_url_recent= "https://haven.or.kr"+recent_schoolphoto_loc.find("a")["href"]
     
-    # Directory to save the images to
     save_dir = "imgsamples"
 
-    #image clear
     for f in os.listdir(save_dir):
         os.remove(os.path.join(save_dir, f))
 
-    # Make sure the directory exists
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # Download the webpage
     schoolphoto_url_recent_html = requests.get(schoolphoto_url_recent)
     html = schoolphoto_url_recent_html.content
 
-    # Parse the HTML
     schoolphoto_url_parse = BeautifulSoup(html, "html.parser")
-    # Find all image tags
+
     images = schoolphoto_url_parse.find_all("img")
-    # Download the images
+
     for phimage in images:
-        # Get the image URL
+
         img_url = phimage["src"]
         if "https://haven.or.kr" not in img_url:
             img_url ="https://haven.or.kr"+ phimage["src"]
-        # Open the image URL
+
         with requests.get(img_url) as schoolphoto_url_recent:
-            # Get the image file name
+
             file_name = os.path.basename(img_url)
-            # Open a file to save the image to
+
             with open(os.path.join(save_dir, file_name), "wb") as f:
-                # Use shutil to copy the image from the URL to the file
+
                 f.write(schoolphoto_url_recent.content) 
                 #shutil.copyfileobj(schoolphoto_url_recent.raw, f)
 
+#공지사항 업데이트
 def noticeupdate():
     notice_url = requests.get("https://haven.or.kr/school-notice/%ea%b0%80%ec%a0%95%ed%86%b5%ec%8b%a0%eb%ac%b8/")
 
-    # Parse the HTML content
     notice_url_parse = BeautifulSoup(notice_url.text, "html.parser")
-
-    # Find the second item in the list of "td" elements with class "kboard-list-title"
     recent_notice_loc = notice_url_parse.find_all("td", {"class": "kboard-list-title"})[1]
 
     # Extract the value of the "href" attribute from the "a" element
@@ -119,6 +104,7 @@ def noticeupdate():
     with open("notice2.jpg", "wb") as f:
         f.write(recent_notice_image2.content)   
 
+#사진 업데이트 
 lunchmenuupdate()
 schoolphotoupdate()
 noticeupdate()
@@ -141,6 +127,7 @@ frame3=tk.Frame(window, relief="solid", height=ht, width=wd,bg=bc,borderwidth=2)
 frame4=tk.Frame(window, relief="solid", height=ht, width=wd)
 frame5=tk.Frame(window, relief="solid", height=ht, width=wd)
 frame6=tk.Frame(window, relief="solid", height=ht, width=wd)
+
 #화면 전환
 def open1():
     frame2.pack_forget()
@@ -289,11 +276,13 @@ lunch=ImageTk.PhotoImage(Image.open('recentlunchmenu.jpg').resize((wd,ht)))
 lun=Label(frame1)
 lun.config(image=lunch)
 lun.pack()
+
 #학교 소개 화면
 intro=ImageTk.PhotoImage(Image.open('introduce.jpg').resize((wd,ht)))
 tro=Label(frame2)
 tro.config(image=intro)
 tro.pack()
+
 #상담 신청 화면
 Label(frame3,bg=bc,text="헤이븐 상담신청",font=(tf.Font(family="맑은 고딕", size=55))).place(x=60,y=0)
 Label(frame3,bg=bc,text="이름:",font=(tf.Font(family="맑은 고딕", size=31))).place(x=20,y=190)
@@ -378,7 +367,6 @@ def update_image():
       image_label.configure(image=noticeimage1)
       imagestate=1
 
-
 imagenextbutton = tk.Button(frame4, text="➜",pady=-10,font=(tf.Font(family="맑은 고딕", size=27)),bg='black',fg='white')
 imagenextbutton.configure(command=update_image)
 imagenextbutton.place(x=980, y=1367,width="100", height="75")
@@ -401,6 +389,7 @@ for file in jpg_files:
 label = tk.Label(frame6, image=images[0])
 label.pack()
 
+#이미지 슬라이드쇼 기능
 def update_image():
    global current_image
    if current_image >= len(images):
