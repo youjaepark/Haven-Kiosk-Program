@@ -14,6 +14,7 @@ from datetime import datetime
 import tkinter.font as tf
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import random
 
 scope = 'https://spreadsheets.google.com/feeds'
 json = 'fourth-way-369505-c550bf5ca587.json'
@@ -44,12 +45,12 @@ def lunchmenuupdate():
 
 #학교생활 사진 업데이트
 def schoolphotoupdate():
+    randomconcept =  random.randrange(0,10)
     schoolphoto_url = "https://haven.or.kr/school-life/%ec%82%ac%ec%a7%84/"
 
     schoolphoto_url_parse = BeautifulSoup(requests.get(schoolphoto_url).content, "html.parser")
-    recent_schoolphoto_loc = schoolphoto_url_parse.find("li", {"class": "kboard-list-item"})
+    recent_schoolphoto_loc = schoolphoto_url_parse.find_all("li", {"class": "kboard-list-item"})[randomconcept]
     schoolphoto_url_recent= "https://haven.or.kr"+recent_schoolphoto_loc.find("a")["href"]
-    
     save_dir = "imgsamples"
 
     for f in os.listdir(save_dir):
