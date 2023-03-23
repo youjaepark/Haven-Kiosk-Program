@@ -12,7 +12,17 @@ import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
 import tkinter.font as tf
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
+scope = 'https://spreadsheets.google.com/feeds'
+json = 'fourth-way-369505-c550bf5ca587.json'
+credentials = ServiceAccountCredentials.from_json_keyfile_name(json, scope)
+gc = gspread.authorize(credentials)
+sheet_url = 'https://docs.google.com/spreadsheets/d/1Zh6U68UpeO7ZlAssBq9Az9ZOICiebz_fEJ2tTC28h78/edit#gid=0'
+doc = gc.open_by_url(sheet_url)
+worksheet = doc.worksheet('Excuse slip')
+classlistspreadsheet = doc.worksheet('Classlist')
 #급식메뉴 사진 업데이트
 def lunchmenuupdate():
     lunchmenu_url = requests.get("https://haven.or.kr/%ec%a0%90%ec%8b%ac%ec%8b%9d%eb%8b%a8%ed%91%9c/")
@@ -105,9 +115,9 @@ def noticeupdate():
         f.write(recent_notice_image2.content)   
 
 #사진 업데이트 
-lunchmenuupdate()
-schoolphotoupdate()
-noticeupdate()
+#lunchmenuupdate()
+#schoolphotoupdate()
+#noticeupdate()
 
 #gui 생성
 bc="#FFFFF0"
@@ -125,7 +135,7 @@ frame1=tk.Frame(window, relief="solid", height=ht, width=wd)
 frame2=tk.Frame(window, relief="solid", height=ht, width=wd)
 frame3=tk.Frame(window, relief="solid", height=ht, width=wd,bg=bc,borderwidth=2)
 frame4=tk.Frame(window, relief="solid", height=ht, width=wd)
-frame5=tk.Frame(window, relief="solid", height=ht, width=wd)
+frame5=tk.Frame(window, relief="solid", height=ht, width=wd,bg=bc)
 frame6=tk.Frame(window, relief="solid", height=ht, width=wd)
 
 #화면 전환
@@ -182,7 +192,8 @@ email_sender = 'havenkiosk.counseling@gmail.com'
 email_password = 'pblrjphidixgfxyi'
 email_receiver_teacher1 = 'haeyang.lee@haven.or.kr'
 email_receiver_teacher2 = 'shawn.shim@haven.or.kr'
-date=datetime.today().strftime("%Y/%m/%d")
+email_receiver_teacher3 = 'serin.shim@haven.or.kr'
+date=datetime.today().strftime('%m/%d(%H:%M)')
 
 name_entry=StringVar()
 wanttime = StringVar()
@@ -195,7 +206,7 @@ thursday= StringVar()
 friday= StringVar()
 reason_entry=StringVar()
 teacher = StringVar() 
-list1 = ['Praise','Love','Purity','Truth','Light','Wisdom','Grace','Hope','Joy','Victory','Charity','Honor','Honesty','Glory']
+classlist = classlistspreadsheet.col_values(1)
 #에러메세지
 def error():
    messagebox.showinfo("오류","모든 입력란을 채워주세요.")
@@ -289,7 +300,7 @@ Label(frame3,bg=bc,text="이름:",font=(tf.Font(family="맑은 고딕", size=31)
 Label(frame3, text="반:",font=(tf.Font(family="맑은 고딕", size=31)),bg=bc).place(x=90,y=300)
 Label(frame3, text="상담받을 선생님:",font=(tf.Font(family="맑은 고딕", size=31)),bg=bc).place(x=20,y=410)
 Label(frame3, text="원하는 요일을 모두 선택하세요:",font=(tf.Font(family="맑은 고딕", size=31)),bg=bc).place(x=20,y=640)
-Label(frame3, text="원하는 시간대를 모두 고르세요:",bg=bc,font=(tf.Font(family="맑은 고딕", size=31))).place(x=20,y=860)
+Label(frame3, text="원하는 시간대를 모두 선택하세요:",bg=bc,font=(tf.Font(family="맑은 고딕", size=31))).place(x=20,y=860)
 Label(frame3, text="상담 사유를 적어주세요:",bg=bc,font=(tf.Font(family="맑은 고딕", size=31))).place(x=20,y=1080)
 
 def keyboard():
@@ -300,8 +311,7 @@ keybotton.place(x=940,y=190)
 
 name_entry = Entry(frame3,font=(tf.Font(family="맑은 고딕",size=31)))
 name_entry.place(x=190,y=190,width=750,height=100)
-
-droplist=OptionMenu(frame3,c, *list1)
+droplist=OptionMenu(frame3,c, *classlist)
 droplist.config(bg=bbg,font=(tf.Font(family="맑은 고딕",size=28)))
 c.set('반을 선택하세요',) 
 droplist.place(x=190,y=300)
@@ -310,9 +320,11 @@ classlist.config(font=(tf.Font(family="맑은 고딕", size=28)))
 
 teacherselect1= Radiobutton(frame3, text="이해양 선생님",font=(tf.Font(family="맑은 고딕", size=31)),bg=bbg, value=email_receiver_teacher1,variable=teacher,indicatoron=False)
 teacherselect1.select()
-teacherselect1.place(x=50,y=520)
+teacherselect1.place(x=30,y=520)
 teacherselect2= Radiobutton(frame3, text="Shawn 선생님",font=(tf.Font(family="맑은 고딕", size=31)),bg=bbg, value=email_receiver_teacher2,variable=teacher,indicatoron=False)
-teacherselect2.place(x=560,y=520)
+teacherselect2.place(x=375,y=520)
+teacherselect3= Radiobutton(frame3, text="심세린 선생님",font=(tf.Font(family="맑은 고딕", size=31)),bg=bbg, value=email_receiver_teacher3,variable=teacher,indicatoron=False)
+teacherselect3.place(x=710,y=520)
 
 mondaybox=Checkbutton(frame3, text="월",font=(tf.Font(family="맑은 고딕", size=31)),bg=bbg,width=3,variable=monday,onvalue='월요일',offvalue="",indicatoron=False)
 mondaybox.deselect()
@@ -371,12 +383,52 @@ imagenextbutton = tk.Button(frame4, text="➜",pady=-10,font=(tf.Font(family="�
 imagenextbutton.configure(command=update_image)
 imagenextbutton.place(x=980, y=1367,width="100", height="75")
 
-#만든 사람들 화면
-madeby=ImageTk.PhotoImage(Image.open('madeby.jpg').resize((wd,ht)))
-made=Label(frame5)
-made.config(image=madeby)
-made.pack()
+#Excuse Slip 화면
+name_entry_slip=StringVar()
+c_slip=StringVar()
+reason_entry_slip=StringVar()
+classlist_slip = classlistspreadsheet.col_values(1)
 
+def clearentry_slip():
+   name_entry_slip.delete(0,'end')
+   reason_entry_slip.delete(0,'end')
+   c_slip.set('반을 선택하세요')
+#전송 버튼 눌렀을 때
+def submit_slip():
+   name= name_entry_slip.get()
+   c1=c_slip.get()
+   reason=reason_entry_slip.get()
+   if name==""or c1=='반을 선택하세요'or reason=="":
+        error()
+   else:
+        worksheet.append_row([name,c1,date,reason])
+        messagebox.showinfo("성공","제출되었습니다.")
+        open6()
+        clearentry_slip() 
+
+Label(frame5,bg=bc,text="Excuse Slip",font=(tf.Font(family="맑은 고딕", size=55))).place(x=60,y=0)
+Label(frame5,bg=bc,text="이름:",font=(tf.Font(family="맑은 고딕", size=31))).place(x=20,y=190)
+Label(frame5, text="반:",font=(tf.Font(family="맑은 고딕", size=31)),bg=bc).place(x=90,y=300)
+Label(frame5, text="내용을 입력해 주세요:",font=(tf.Font(family="맑은 고딕", size=31)),bg=bc).place(x=20,y=410)
+
+keybotton_slip=Button(frame5, text='⌨',bg='black',fg='white',font=(tf.Font(family="맑은 고딕", size=18)),command=keyboard)
+keybotton_slip.place(x=940,y=190)
+
+name_entry_slip = Entry(frame5,font=(tf.Font(family="맑은 고딕",size=31)))
+name_entry_slip.place(x=190,y=190,width=750,height=100)
+droplist_silp=OptionMenu(frame5,c_slip, *classlist_slip)
+droplist_silp.config(bg=bbg,font=(tf.Font(family="맑은 고딕",size=28)))
+c_slip.set('반을 선택하세요',) 
+droplist_silp.place(x=190,y=300)
+classlist_slip = window.nametowidget(droplist_silp.menuname)  
+classlist_slip.config(font=(tf.Font(family="맑은 고딕", size=28))) 
+
+reason_entry_slip = Entry(frame5,font=(tf.Font(family="맑은 고딕",size=31),))
+reason_entry_slip.place(x=20,y=520,width=1040,height=100)
+submitbutton_slip=Button(frame5, text='제출',height=1,bg='brown',fg='white',font=(tf.Font(family="맑은 고딕", size=31)),command=submit_slip)
+submitbutton_slip.place(x=620,y=740,width=300,height=120)
+clearbutton_slip=Button(frame5, text='초기화',bg='black',fg='white',font=(tf.Font(family="맑은 고딕", size=31)),command=clearentry_slip)
+clearbutton_slip.place(x=160,y=740,width=300,height=120)
 #사진 모음 화면
 jpg_files = glob.glob('.\\imgsamples\\*.jpg')
 images = []
@@ -413,8 +465,8 @@ Btn_take1=Button(window,relief="solid",borderwidth=4,fg="black",bg=bbg,text="급
 Btn_take2=Button(window,relief="solid",borderwidth=4,fg="black",bg=bbg,text="학교설명",font=buttonfont, command=lambda:open2()).place(x=bw+xxx*2, y=by,width=bw, height=bh)
 Btn_take3=Button(window,relief="solid",borderwidth=4,fg="black",bg=bbg,text="상담신청",font=buttonfont, command=lambda:open3()).place(x=bw*2+xxx*3,y=by,width=bw, height=bh)
 Btn_take4=Button(window,relief="solid",borderwidth=4,fg="black",bg=bbg,text="공지사항",font=buttonfont, command=lambda:open4()).place(x=bw*3+xxx*4, y=by,width=bw, height=bh)
-Btn_take5=Button(window,relief="solid",borderwidth=4,fg="black",bg=bbg,text="만든이들",font=buttonfont, command=lambda:open5()).place(x=bw*4+xxx*5, y=by,width=bw, height=bh)
-Btn_take6=Button(window,relief="solid",borderwidth=4,fg="black",bg=bbg,text="홈 화면",font=(tf.Font(family="카페 24 써라운드",weight="bold",size=20)), command=lambda:open6()).place(x=bw*2+xxx*3-25, y=by+220,width=200, height=100)
+Btn_take5=Button(window,relief="solid",borderwidth=4,fg="black",bg=bbg,text="Excuse Slip",font=buttonfont, command=lambda:open5()).place(x=bw*4+xxx*5, y=by,width=bw, height=bh)
+Btn_take6=Button(window,relief="solid",borderwidth=4,fg="black",bg=bbg,text="학교생활",font=(tf.Font(family="카페 24 써라운드",weight="bold",size=20)), command=lambda:open6()).place(x=bw*2+xxx*3-25, y=by+220,width=200, height=100)
 
 #프로그램 시작
 open6()
