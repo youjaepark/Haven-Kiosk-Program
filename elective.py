@@ -323,7 +323,7 @@ teacherselect1= Radiobutton(frame3, text="이해양 선생님",font=(tf.Font(fam
 teacherselect1.select()
 teacherselect1.place(x=30,y=520)
 teacherselect2= Radiobutton(frame3, text="Shawn 선생님",font=(tf.Font(family="맑은 고딕", size=31)),bg=bbg, value=email_receiver_teacher2,variable=teacher,indicatoron=False)
-teacherselect2.place(x=375,y=520)
+teacherselect2.place(x=370,y=520)
 teacherselect3= Radiobutton(frame3, text="심세린 선생님",font=(tf.Font(family="맑은 고딕", size=31)),bg=bbg, value=email_receiver_teacher3,variable=teacher,indicatoron=False)
 teacherselect3.place(x=710,y=520)
 
