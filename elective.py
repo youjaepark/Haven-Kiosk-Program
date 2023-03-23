@@ -116,9 +116,9 @@ def noticeupdate():
         f.write(recent_notice_image2.content)   
 
 #사진 업데이트 
-#lunchmenuupdate()
-#schoolphotoupdate()
-#noticeupdate()
+lunchmenuupdate()
+schoolphotoupdate()
+noticeupdate()
 
 #gui 생성
 bc="#FFFFF0"
@@ -188,6 +188,10 @@ def open6():
     frame5.pack_forget()
     frame6.pack()
 
+#화상 키보드
+def keyboard():
+   pyautogui.hotkey('win','ctrl','o')
+
 #이메일 기본 설정
 email_sender = 'havenkiosk.counseling@gmail.com'
 email_password = 'pblrjphidixgfxyi'
@@ -227,6 +231,7 @@ def clearentry():
    c.set('반을 선택하세요')
 #전송 버튼 눌렀을 때
 def submit():
+   global key_is_on
    wantdate=[]
    wanttimelist=[]
    name= name_entry.get()
@@ -277,9 +282,10 @@ def submit():
       smtp_gmail.sendmail(from_addr=email_sender,to_addrs=email_receiver, msg=em.as_string())
       smtp_gmail.quit()
       messagebox.showinfo("성공","상담 신청이 완료되었습니다.")
+      keyboard()
       open6()
-      clearentry() 
-      pyautogui.hotkey('win','ctrl','o')
+      clearentry()
+
 
     #상담 신청 창 클리어   
 
@@ -303,9 +309,6 @@ Label(frame3, text="상담받을 선생님:",font=(tf.Font(family="맑은 고딕
 Label(frame3, text="원하는 요일을 모두 선택하세요:",font=(tf.Font(family="맑은 고딕", size=31)),bg=bc).place(x=20,y=640)
 Label(frame3, text="원하는 시간대를 모두 선택하세요:",bg=bc,font=(tf.Font(family="맑은 고딕", size=31))).place(x=20,y=860)
 Label(frame3, text="상담 사유를 적어주세요:",bg=bc,font=(tf.Font(family="맑은 고딕", size=31))).place(x=20,y=1080)
-
-def keyboard():
-   pyautogui.hotkey('win','ctrl','o')
 
 keybotton=Button(frame3, text='⌨',bg='black',fg='white',font=(tf.Font(family="맑은 고딕", size=18)),command=keyboard)
 keybotton.place(x=940,y=190)
@@ -391,11 +394,13 @@ reason_entry_slip=StringVar()
 classlist_slip = classlistspreadsheet.col_values(1)
 
 def clearentry_slip():
+   
    name_entry_slip.delete(0,'end')
    reason_entry_slip.delete(0,'end')
    c_slip.set('반을 선택하세요')
 #전송 버튼 눌렀을 때
 def submit_slip():
+   global key_is_on
    name= name_entry_slip.get()
    c1=c_slip.get()
    reason=reason_entry_slip.get()
@@ -406,6 +411,9 @@ def submit_slip():
         messagebox.showinfo("성공","제출되었습니다.")
         open6()
         clearentry_slip() 
+        keyboard()   
+
+
 
 Label(frame5,bg=bc,text="Excuse Slip",font=(tf.Font(family="맑은 고딕", size=55))).place(x=60,y=0)
 Label(frame5,bg=bc,text="이름:",font=(tf.Font(family="맑은 고딕", size=31))).place(x=20,y=190)
