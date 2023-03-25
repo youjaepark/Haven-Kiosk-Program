@@ -16,7 +16,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import random
 
-scope = 'https://spreadsheets.google.com/feeds'
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 json = 'fourth-way-369505-c550bf5ca587.json'
 credentials = ServiceAccountCredentials.from_json_keyfile_name(json, scope)
 gc = gspread.authorize(credentials)
@@ -45,7 +45,7 @@ def lunchmenuupdate():
 
 #학교생활 사진 업데이트
 def schoolphotoupdate():
-    randomconcept =  random.randrange(0,10)
+    randomconcept =  random.randrange(0,12)
     schoolphoto_url = "https://haven.or.kr/school-life/%ec%82%ac%ec%a7%84/"
 
     schoolphoto_url_parse = BeautifulSoup(requests.get(schoolphoto_url).content, "html.parser")
@@ -67,20 +67,16 @@ def schoolphotoupdate():
     images = schoolphoto_url_parse.find_all("img")
 
     for phimage in images:
-
         img_url = phimage["src"]
-        if "https://haven.or.kr" not in img_url:
-            img_url ="https://haven.or.kr"+ phimage["src"]
+        if "haven.or.kr" not in img_url:
+            img_url ="https://haven.or.kr"+ img_url
 
         with requests.get(img_url) as schoolphoto_url_recent:
 
             file_name = os.path.basename(img_url)
 
             with open(os.path.join(save_dir, file_name), "wb") as f:
-
                 f.write(schoolphoto_url_recent.content) 
-                #shutil.copyfileobj(schoolphoto_url_recent.raw, f)
-
 #공지사항 업데이트
 def noticeupdate():
     notice_url = requests.get("https://haven.or.kr/school-notice/%ea%b0%80%ec%a0%95%ed%86%b5%ec%8b%a0%eb%ac%b8/")
@@ -132,12 +128,13 @@ window.resizable(True, True)
 window.attributes('-fullscreen',True)
 
 #프레임 생성
-frame1=tk.Frame(window, relief="solid", height=ht, width=wd)
-frame2=tk.Frame(window, relief="solid", height=ht, width=wd)
-frame3=tk.Frame(window, relief="solid", height=ht, width=wd,bg=bc,borderwidth=2)
-frame4=tk.Frame(window, relief="solid", height=ht, width=wd)
-frame5=tk.Frame(window, relief="solid", height=ht, width=wd,bg=bc)
-frame6=tk.Frame(window, relief="solid", height=ht, width=wd)
+frame1=Frame(window, relief="solid", height=ht, width=wd)
+frame2=Frame(window, relief="solid", height=ht, width=wd)
+frame3=Frame(window, relief="solid", height=ht, width=wd,bg=bc,borderwidth=2)
+frame4=Frame(window, relief="solid", height=ht, width=wd)
+frame5=Frame(window, relief="solid", height=ht, width=wd,bg=bc)
+frame6=Frame(window, relief="solid", height=ht, width=wd)
+
 
 #화면 전환
 def open1():
@@ -145,6 +142,7 @@ def open1():
     frame3.pack_forget()
     frame4.pack_forget()
     frame5.pack_forget()
+    frame6.pack_forget()
     frame6.pack_forget()
     frame1.pack()
 
@@ -371,7 +369,7 @@ clearbutton.place(x=160,y=1300,width=300,height=120)
 noticeimage1=ImageTk.PhotoImage(Image.open('notice1.jpg').resize((wd,ht)))
 noticeimage2=ImageTk.PhotoImage(Image.open('notice2.jpg').resize((wd,ht)))
 imagestate=0
-image_label = tk.Label(frame4)
+image_label = Label(frame4)
 image_label.configure(image=noticeimage1)
 image_label.pack()
 def update_image():
@@ -383,7 +381,7 @@ def update_image():
       image_label.configure(image=noticeimage1)
       imagestate=1
 
-imagenextbutton = tk.Button(frame4, text="➜",pady=-10,font=(tf.Font(family="맑은 고딕", size=27)),bg='black',fg='white')
+imagenextbutton = Button(frame4, text="➜",pady=-10,font=(tf.Font(family="맑은 고딕", size=27)),bg='black',fg='white')
 imagenextbutton.configure(command=update_image)
 imagenextbutton.place(x=980, y=1367,width="100", height="75")
 
@@ -447,7 +445,7 @@ for file in jpg_files:
     images.append(ImageTk.PhotoImage(img))
     img.close()
 
-label = tk.Label(frame6, image=images[0])
+label = Label(frame6, image=images[0])
 label.pack()
 
 #이미지 슬라이드쇼 기능
